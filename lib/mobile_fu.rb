@@ -59,7 +59,7 @@ module ActionController
       # Forces the request format to be :mobile
       
       def force_mobile_format
-        if !request.xhr?
+        if !js_xhr_request?
           request.format = :mobile
           session[:mobile_view] = true if session[:mobile_view].nil?
         end
@@ -69,7 +69,7 @@ module ActionController
       # the user has opted to use either the 'Standard' view or 'Mobile' view.
       
       def set_mobile_format
-        if is_mobile_device? && !request.xhr?
+        if is_mobile_device? && !js_xhr_request?
           request.format = session[:mobile_view] == false ? :html : :mobile
           session[:mobile_view] = true if session[:mobile_view].nil?
         end
@@ -94,6 +94,11 @@ module ActionController
       
       def is_device?(type)
         request.user_agent.to_s.downcase.include?(type.to_s.downcase)
+      end
+      
+      private
+      def js_xhr_request?
+        request.xhr? && !['/','text/html'].include?(request.format)
       end
     end
     
